@@ -47,7 +47,7 @@ Apri [http://localhost:3000](http://localhost:3000)
 
 1. Collega il repo [Spottly-Team/cardspottly](https://github.com/Spottly-Team/cardspottly)
 2. **Build command:** `npm run build` (già in `netlify.toml`)
-3. **Publish directory:** lascia **vuoto** oppure `.next` — **non** usare `public` o `out`
+3. **Publish directory:** imposta **`.next`** oppure lascia vuoto — **mai** `/` o la root del repo (altrimenti errore plugin Next.js)
 4. Netlify userà automaticamente `@netlify/plugin-nextjs` (incluso nel repo)
 5. In **Site settings → Environment variables** aggiungi tutte le variabili da `.env.example`:
    - `NEXT_PUBLIC_FIREBASE_API_KEY`

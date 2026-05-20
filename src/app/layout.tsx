@@ -11,7 +11,6 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "Spottly Card",
   description: "Configura la tua card NFC Spottly",
-  themeColor: "#000000",
   icons: {
     icon: "/spottly-icon.svg",
     apple: "/spottly-icon.svg",
@@ -27,6 +26,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

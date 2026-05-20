@@ -1,5 +1,10 @@
+# Next.js su Netlify: NON usare la root come publish directory.
+# In Netlify UI → Build settings → Publish directory → lascia VUOTO
+# oppure imposta esplicitamente: .next (se "Not set" usa la root e il build fallisce)
+
 [build]
   command = "npm run build"
+  publish = ".next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
