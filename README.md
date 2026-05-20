@@ -43,6 +43,26 @@ npm run dev
 
 Apri [http://localhost:3000](http://localhost:3000)
 
+## Deploy su Netlify
+
+1. Collega il repo [Spottly-Team/cardspottly](https://github.com/Spottly-Team/cardspottly)
+2. **Build command:** `npm run build` (già in `netlify.toml`)
+3. **Publish directory:** lascia **vuoto** oppure `.next` — **non** usare `public` o `out`
+4. Netlify userà automaticamente `@netlify/plugin-nextjs` (incluso nel repo)
+5. In **Site settings → Environment variables** aggiungi tutte le variabili da `.env.example`:
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`
+   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+   - `NEXT_PUBLIC_FIREBASE_APP_ID`
+   - `NEXT_PUBLIC_APP_URL` = `https://tuo-sito.netlify.app` (o `https://appspottly.com`)
+6. **Firebase Auth** → Authorized domains → aggiungi il dominio Netlify (es. `cardspottly.netlify.app`)
+7. **Google Cloud** → OAuth → Authorized JavaScript origins → `https://tuo-sito.netlify.app`
+8. Rideploy dopo aver salvato le variabili
+
+> Se vedi “Page not found” di Netlify: quasi sempre **Publish directory** sbagliata (`public` invece del plugin Next.js).
+
 ## Test da telefono (stessa Wi‑Fi)
 
 Il dev server è già in ascolto sulla rete locale (`npm run dev` → `-H 0.0.0.0`).
