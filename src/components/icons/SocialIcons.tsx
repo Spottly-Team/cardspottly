@@ -30,7 +30,9 @@ export function GlobeIcon({ className = "h-5 w-5" }: { className?: string }) {
   );
 }
 
-export { SpottlyIcon } from "./SpottlyIcon";
+import { SpottlyIcon } from "./SpottlyIcon";
+
+export { SpottlyIcon };
 
 export function SpottlyPinIcon({ className = "h-9 w-9" }: { className?: string }) {
   return <SpottlyIcon className={className} />;
