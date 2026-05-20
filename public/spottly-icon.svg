@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Spottly">
+  <defs>
+    <mask id="spottly-shape" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <image href="/spottly-mask.png" width="512" height="512" preserveAspectRatio="xMidYMid meet"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" fill="#FFFFFF" mask="url(#spottly-shape)"/>
+</svg>
