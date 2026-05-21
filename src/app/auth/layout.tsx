@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Accedi",
   description:
-    "Accedi a Spottly Card con Google o Apple per configurare e gestire la tua tessera NFC.",
+    "Accedi a Spottly Card con Google per configurare e gestire la tua tessera NFC.",
   robots: { index: false, follow: false },
 };
 

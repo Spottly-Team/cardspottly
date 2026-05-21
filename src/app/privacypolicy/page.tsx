@@ -6,7 +6,7 @@ import { LegalPage } from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Privacy Policy — Spottly Card",
   description:
-    "Informativa sulla privacy di Spottly Card: dati raccolti, Google e Apple Sign-In, GDPR e contatti.",
+    "Informativa sulla privacy di Spottly Card: dati raccolti, accesso con Google, GDPR e contatti.",
   alternates: { canonical: "/privacypolicy" },
 };
 

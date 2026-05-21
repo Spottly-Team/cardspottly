@@ -4,9 +4,9 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
-import { GoogleIcon, AppleIcon } from "@/components/icons/AuthBrandIcons";
+import { GoogleIcon } from "@/components/icons/AuthBrandIcons";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { getAuthErrorCode, getAuthErrorMessage } from "@/lib/auth-errors";
 import { resolvePostAuthPath } from "@/lib/post-auth-redirect";
 import { LegalFooterLinks } from "@/components/LegalFooterLinks";
 import { getRedirectResult } from "firebase/auth";
@@ -20,48 +20,64 @@ function AuthFooter() {
 }
 
 function AuthContent() {
-  const { user, loading, signInGoogle, signInApple } = useAuth();
+  const { user, loading, signInGoogle } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const redirectParam = params.get("redirect");
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<"google" | "apple" | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const [storedRedirect, setStoredRedirect] = useState<string | null>(null);
+  const effectiveRedirect = redirectParam ?? storedRedirect;
 
   useEffect(() => {
-    getRedirectResult(getFirebaseAuth()).catch((err) => {
-      setError(getAuthErrorMessage(err));
-      setBusy(null);
-    });
+    setStoredRedirect(sessionStorage.getItem("spottly_auth_redirect"));
+  }, []);
+
+  useEffect(() => {
+    getRedirectResult(getFirebaseAuth())
+      .then((result) => {
+        if (result) {
+          sessionStorage.removeItem("spottly_auth_redirect");
+          setStoredRedirect(null);
+        }
+      })
+      .catch((err) => {
+        setErrorCode(getAuthErrorCode(err));
+        setError(getAuthErrorMessage(err));
+        setBusy(false);
+      });
   }, []);
 
   useEffect(() => {
     if (loading || !user) return;
 
     let cancelled = false;
+    sessionStorage.removeItem("spottly_auth_redirect");
 
-    resolvePostAuthPath(user.uid, redirectParam).then((path) => {
+    resolvePostAuthPath(user.uid, effectiveRedirect).then((path) => {
       if (!cancelled) router.replace(path);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [user, loading, router, redirectParam]);
+  }, [user, loading, router, effectiveRedirect]);
 
   const completingSignIn = !loading && !!user;
 
-  async function handleSignIn(
-    provider: "google" | "apple",
-    fn: () => Promise<void>,
-  ) {
+  async function handleSignIn() {
     setError(null);
-    setBusy(provider);
+    setErrorCode(null);
+    setBusy(true);
     try {
-      await fn();
+      await signInGoogle();
     } catch (err) {
+      setErrorCode(getAuthErrorCode(err));
       setError(getAuthErrorMessage(err));
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   }
 
@@ -85,34 +101,29 @@ function AuthContent() {
   return (
     <Shell
       title="Accedi"
-      subtitle="Usa Google o Apple per configurare e gestire la tua card."
+      subtitle="Usa Google per configurare e gestire la tua card."
     >
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex flex-1 flex-col justify-center gap-3">
           <button
             type="button"
-            disabled={!!busy}
-            onClick={() => handleSignIn("google", signInGoogle)}
+            disabled={busy}
+            onClick={handleSignIn}
             className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-white px-6 text-sm font-semibold text-black transition active:scale-[0.98] disabled:opacity-60"
           >
             <GoogleIcon className="h-5 w-5 shrink-0" />
             <span>Continua con Google</span>
           </button>
 
-          <button
-            type="button"
-            disabled={!!busy}
-            onClick={() => handleSignIn("apple", signInApple)}
-            className="flex h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-white bg-black px-6 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
-          >
-            <AppleIcon className="h-[22px] w-[22px] shrink-0" />
-            <span>Continua con Apple</span>
-          </button>
-
           {error ? (
-            <p className="rounded-xl border border-white/30 bg-white/5 px-4 py-3 text-sm text-white">
-              {error}
-            </p>
+            <div className="rounded-xl border border-white/30 bg-white/5 px-4 py-3 text-sm text-white">
+              <p className="whitespace-pre-line leading-relaxed">{error}</p>
+              {errorCode ? (
+                <p className="mt-2 font-mono text-xs text-neutral-500">
+                  Codice Firebase: {errorCode}
+                </p>
+              ) : null}
+            </div>
           ) : null}
         </div>
 

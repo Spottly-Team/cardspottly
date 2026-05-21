@@ -9,7 +9,7 @@ const SHOP_URL = "https://appspottly.com/shop";
 export const metadata: Metadata = {
   title: "Spottly Card — Attiva la tua tessera NFC",
   description:
-    "Scansiona la tessera NFC Spottly, configura il profilo con Google o Apple e condividi i tuoi social con un tap.",
+    "Scansiona la tessera NFC Spottly, configura il profilo con Google e condividi i tuoi social con un tap.",
   alternates: {
     canonical: "/",
   },
@@ -47,7 +47,7 @@ export default function HomePage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
               Passo 2
             </p>
-            <p className="mt-1 font-medium text-white">Accedi con Google o Apple</p>
+            <p className="mt-1 font-medium text-white">Accedi con Google</p>
           </li>
           <li>
             <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">

@@ -1,7 +1,7 @@
 import { getUserProfile } from "@/lib/firestore";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
 
-/** Dove mandare l'utente dopo Google/Apple, in base a profilo e flusso card. */
+/** Dove mandare l'utente dopo l'accesso Google, in base a profilo e flusso card. */
 export async function resolvePostAuthPath(
   uid: string,
   redirectParam: string | null,

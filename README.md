@@ -5,7 +5,7 @@ Web app per configurare tessere NFC Spottly: ogni card ha un URL univoco (`/c/<c
 ## Flusso utente
 
 1. Scansiona la card → pagina istruzioni
-2. Login con **Google** o **Apple**
+2. Login con **Google**
 3. Associa la card al proprio account
 4. Compila profilo (Instagram, TikTok, username Spottly, nome, anno nascita, foto)
 5. Scan successivi → mostra il profilo pubblico
@@ -14,7 +14,7 @@ Web app per configurare tessere NFC Spottly: ogni card ha un URL univoco (`/c/<c
 ## Setup Firebase
 
 1. Crea un progetto su [Firebase Console](https://console.firebase.google.com)
-2. Abilita **Authentication** → Google e Apple
+2. Abilita **Authentication** → **Google**
 3. Crea app **Web** e copia le credenziali in `.env.local` (da `.env.example`)
 4. Abilita **Firestore** e **Storage**
 5. Deploy regole (devi essere loggato con l’account **proprietario** del progetto):
@@ -30,12 +30,6 @@ Web app per configurare tessere NFC Spottly: ogni card ha un URL univoco (`/c/<c
 
 - `/privacypolicy` e `/termini-condizioni` — testo ufficiale Spottly (da `public/legal/` e `src/content/`)
 - Link in footer pagina `/auth`
-
-### Apple Sign-In (web)
-
-- Apple Developer → Identifiers → Service ID
-- Configura domini e redirect URL Firebase
-- Aggiungi provider Apple in Firebase Auth
 
 ## Avvio locale
 
@@ -89,8 +83,7 @@ Il dev server è già in ascolto sulla rete locale (`npm run dev` → `-H 0.0.0.
 
 5. Riavvia `npm run dev` se era già avviato
 
-> **Nota:** se cambi IP (router diverso), ripeti i passi 3–4 con il nuovo IP.  
-> **Apple Sign-In** su IP locale spesso non funziona (serve HTTPS + dominio): per provare usa **Google**.
+> **Nota:** se cambi IP (router diverso), ripeti i passi 3–4 con il nuovo IP.
 
 
 Genera 100 `cardId` alfanumerici, CSV e import Firestore:

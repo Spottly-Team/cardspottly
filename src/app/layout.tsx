@@ -11,7 +11,7 @@ const siteUrl =
 const siteName = "Spottly Card";
 const defaultTitle = "Spottly Card — La tua tessera NFC";
 const defaultDescription =
-  "Configura la tessera NFC Spottly: condividi profilo, social e sconti nei locali partner. Scansiona, accedi con Google o Apple e attiva la tua card in pochi secondi.";
+  "Configura la tessera NFC Spottly: condividi profilo, social e sconti nei locali partner. Scansiona, accedi con Google e attiva la tua card in pochi secondi.";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
