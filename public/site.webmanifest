@@ -1,0 +1,22 @@
+{
+  "name": "Spottly Card",
+  "short_name": "Spottly Card",
+  "description": "Configura la tua tessera NFC Spottly e condividi il tuo profilo con un tap.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#5c59a3",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

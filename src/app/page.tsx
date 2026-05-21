@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Shell } from "@/components/ui/Shell";
 import { Button } from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  title: "Spottly Card — Attiva la tua tessera NFC",
+  description:
+    "Scansiona la tessera NFC Spottly, configura il profilo con Google o Apple e condividi i tuoi social con un tap.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function HomePage() {
   return (
