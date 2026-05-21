@@ -56,9 +56,10 @@ Apri [http://localhost:3000](http://localhost:3000)
    - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
    - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
    - `NEXT_PUBLIC_FIREBASE_APP_ID`
-   - `NEXT_PUBLIC_APP_URL` = `https://tuo-sito.netlify.app` (o `https://appspottly.com`)
-6. **Firebase Auth** → Authorized domains → aggiungi il dominio Netlify (es. `cardspottly.netlify.app`)
-7. **Google Cloud** → OAuth → Authorized JavaScript origins → `https://tuo-sito.netlify.app`
+   - `NEXT_PUBLIC_APP_URL` = `https://card.appspottly.com`
+6. **Firebase Auth** → Authorized domains → aggiungi `card.appspottly.com` (e `cardspottly.netlify.app` finché usi Netlify)
+7. **Google Cloud** → OAuth → Authorized JavaScript origins → `https://card.appspottly.com`
+8. **Netlify** → Domain management → aggiungi `card.appspottly.com` (DNS CNAME verso Netlify)
 8. Rideploy dopo aver salvato le variabili
 
 > Se vedi “Page not found” di Netlify: quasi sempre **Publish directory** sbagliata (`public` invece del plugin Next.js).
@@ -99,12 +100,12 @@ npm run provision
 npm run provision -- --dry-run
 
 # personalizza quantità e dominio:
-npm run provision -- --count 200 --base-url https://appspottly.com
+npm run provision -- --count 200 --base-url https://card.appspottly.com
 ```
 
 Output: `cards.csv` con colonne `cardId,url`
 
-Scrivi su ogni tag NFC l'URL corrispondente, es. `https://appspottly.com/c/A1B2C3D4E5F6`
+Scrivi su ogni tag NFC l'URL corrispondente, es. `https://card.appspottly.com/c/A1B2C3D4E5F6`
 
 ## Struttura
 

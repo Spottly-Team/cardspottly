@@ -21,7 +21,7 @@ function parseArgs() {
   const args = process.argv.slice(2);
   let count = DEFAULT_COUNT;
   let dryRun = false;
-  let baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://appspottly.com";
+  let baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://card.appspottly.com";
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--count" && args[i + 1]) {

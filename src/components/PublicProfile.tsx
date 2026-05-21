@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import type { UserProfile } from "@/lib/types";
+import { getAppBaseUrl } from "@/lib/firebase";
 import { InstagramIcon, TikTokIcon, SpottlyIcon } from "@/components/icons/SocialIcons";
 
 function SocialRow({
@@ -41,6 +42,7 @@ function SocialRow({
 
 export function PublicProfile({ profile }: { profile: UserProfile }) {
   const initial = profile.fullName.charAt(0).toUpperCase();
+  const baseUrl = getAppBaseUrl();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -82,7 +84,7 @@ export function PublicProfile({ profile }: { profile: UserProfile }) {
         <SocialRow
           label="Spottly"
           username={profile.spottlyUsername}
-          href={`https://appspottly.com/u/${profile.spottlyUsername}`}
+          href={`${baseUrl}/u/${profile.spottlyUsername}`}
           icon={<SpottlyIcon className="h-9 w-9" />}
         />
         {profile.instagramUsername ? (
