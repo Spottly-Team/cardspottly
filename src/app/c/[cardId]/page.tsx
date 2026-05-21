@@ -25,6 +25,15 @@ export default function CardPage() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    if (loading || authLoading || notFound || claimed) return;
+    if (!user && isValidCardId(cardId)) {
+      router.replace(
+        `/auth?redirect=${encodeURIComponent(`/claim/${cardId}`)}`,
+      );
+    }
+  }, [loading, authLoading, notFound, claimed, user, cardId, router]);
+
+  useEffect(() => {
     if (!isValidCardId(cardId)) {
       setNotFound(true);
       setLoading(false);
@@ -126,44 +135,44 @@ export default function CardPage() {
     );
   }
 
+  if (!user) {
+    return (
+      <Shell title="Accedi" subtitle="Reindirizzamento all'accesso...">
+        <div className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-pulse rounded-full bg-white/20" />
+        </div>
+      </Shell>
+    );
+  }
+
   return (
     <Shell
       title="Configura la tua card"
-      subtitle="Segui questi passaggi per attivare la tessera Spottly."
+      subtitle="Hai effettuato l'accesso. Ora associa la tessera al tuo account."
     >
       <ol className="mb-8 space-y-5 border-l-2 border-white pl-6">
         <li>
           <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-            1
-          </p>
-          <p className="mt-1 font-medium text-white">Accedi con Google o Apple</p>
-        </li>
-        <li>
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-            2
-          </p>
-          <p className="mt-1 font-medium text-white">Associa questa card al tuo account</p>
-        </li>
-        <li>
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-            3
+            Prossimo passo
           </p>
           <p className="mt-1 font-medium text-white">
-            Inserisci i tuoi dati: social, nome, anno di nascita e foto
+            Associa questa card al tuo account Spottly
+          </p>
+        </li>
+        <li>
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+            Poi
+          </p>
+          <p className="mt-1 font-medium text-white">
+            Compila nome, social, anno di nascita e foto profilo
           </p>
         </li>
       </ol>
 
       <div className="mt-auto flex flex-col gap-3">
-        {user ? (
-          <Button fullWidth onClick={() => router.push(`/claim/${cardId}`)}>
-            Associa questa card
-          </Button>
-        ) : (
-          <Link href={`/auth?redirect=${encodeURIComponent(`/claim/${cardId}`)}`}>
-            <Button fullWidth>Accedi per configurare</Button>
-          </Link>
-        )}
+        <Button fullWidth onClick={() => router.push(`/claim/${cardId}`)}>
+          Associa questa card
+        </Button>
         <p className="text-center text-xs font-mono text-neutral-400">
           Card ID: {cardId}
         </p>

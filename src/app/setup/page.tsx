@@ -6,10 +6,12 @@ import { Shell } from "@/components/ui/Shell";
 import { ProfileForm } from "@/components/ProfileForm";
 import { useAuth } from "@/components/AuthProvider";
 import {
+  getCard,
   getUserProfile,
   profileToForm,
   saveUserProfile,
 } from "@/lib/firestore";
+import { isValidCardId } from "@/lib/card-id";
 import { normalizeCardId } from "@/lib/card-id";
 
 function SetupContent() {
@@ -22,24 +24,41 @@ function SetupContent() {
   const [initial, setInitial] = useState(profileToForm(null));
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
   const [profileLoading, setProfileLoading] = useState(true);
+  const [cardCheckLoading, setCardCheckLoading] = useState(!!cardId);
 
   useEffect(() => {
     if (!loading && !user) {
-      const redirect = cardId ? `/setup?cardId=${cardId}` : "/setup";
+      const redirect =
+        cardId && isValidCardId(cardId)
+          ? `/claim/${cardId}`
+          : "/setup";
       router.replace(`/auth?redirect=${encodeURIComponent(redirect)}`);
     }
   }, [loading, user, router, cardId]);
 
   useEffect(() => {
     if (!user) return;
-    getUserProfile(user.uid).then((p) => {
+
+    async function load() {
+      if (cardId && isValidCardId(cardId)) {
+        const card = await getCard(cardId);
+        if (!card?.claimedBy || card.claimedBy !== user.uid) {
+          router.replace(`/claim/${cardId}`);
+          return;
+        }
+      }
+
+      const p = await getUserProfile(user.uid);
       setInitial(profileToForm(p));
       setAvatarUrl(p?.avatarUrl);
       setProfileLoading(false);
-    });
-  }, [user]);
+      setCardCheckLoading(false);
+    }
 
-  if (loading || !user || profileLoading) {
+    load();
+  }, [user, cardId, router]);
+
+  if (loading || !user || profileLoading || cardCheckLoading) {
     return (
       <Shell title="Setup profilo" subtitle="Caricamento...">
         <div className="flex flex-1 items-center justify-center">

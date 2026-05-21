@@ -106,8 +106,8 @@ export default function ClaimPage() {
     >
       <div className="mt-auto flex flex-col gap-4">
         <p className="rounded-2xl border border-white/20 bg-white/5 px-4 py-3 text-sm text-neutral-300">
-          Dopo l&apos;associazione potrai inserire Instagram, TikTok, username
-          Spottly, nome, anno di nascita e foto profilo.
+          Nel passo successivo inserirai nome, social, anno di nascita e foto
+          profilo.
         </p>
         {error ? (
           <p className="rounded-xl border border-white/30 bg-white/5 px-4 py-3 text-sm text-white">
