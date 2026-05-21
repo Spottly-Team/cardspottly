@@ -28,19 +28,11 @@ function AuthContent() {
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const [storedRedirect, setStoredRedirect] = useState<string | null>(null);
-  const effectiveRedirect = redirectParam ?? storedRedirect;
-
-  useEffect(() => {
-    setStoredRedirect(sessionStorage.getItem("spottly_auth_redirect"));
-  }, []);
-
   useEffect(() => {
     getRedirectResult(getFirebaseAuth())
       .then((result) => {
         if (result) {
           sessionStorage.removeItem("spottly_auth_redirect");
-          setStoredRedirect(null);
         }
       })
       .catch((err) => {
@@ -54,16 +46,19 @@ function AuthContent() {
     if (loading || !user) return;
 
     let cancelled = false;
+    const redirect =
+      redirectParam ??
+      sessionStorage.getItem("spottly_auth_redirect");
     sessionStorage.removeItem("spottly_auth_redirect");
 
-    resolvePostAuthPath(user.uid, effectiveRedirect).then((path) => {
+    resolvePostAuthPath(user.uid, redirect).then((path) => {
       if (!cancelled) router.replace(path);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [user, loading, router, effectiveRedirect]);
+  }, [user, loading, router, redirectParam]);
 
   const completingSignIn = !loading && !!user;
 
@@ -73,10 +68,10 @@ function AuthContent() {
     setBusy(true);
     try {
       await signInGoogle();
+      // redirect: la pagina cambia; popup: resta busy finché user è valorizzato
     } catch (err) {
       setErrorCode(getAuthErrorCode(err));
       setError(getAuthErrorMessage(err));
-    } finally {
       setBusy(false);
     }
   }

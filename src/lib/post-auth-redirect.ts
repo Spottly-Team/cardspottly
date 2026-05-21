@@ -26,12 +26,16 @@ export async function resolvePostAuthPath(
     return "/setup";
   }
 
-  if (!raw || raw === "/setup" || raw.startsWith("/setup?")) {
+  if (!raw || raw === "/me" || raw.startsWith("/me")) {
     return "/me";
   }
 
-  if (raw === "/me") {
+  if (raw === "/setup" || raw.startsWith("/setup?")) {
     return "/me";
+  }
+
+  if (raw.startsWith("/c/")) {
+    return raw.split("?")[0]!;
   }
 
   return raw;

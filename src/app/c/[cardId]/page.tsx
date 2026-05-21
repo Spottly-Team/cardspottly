@@ -113,9 +113,21 @@ export default function CardPage() {
   }
 
   if (claimed && profile) {
+    const authRedirect = `/auth?redirect=${encodeURIComponent(`/c/${cardId}`)}`;
+    const isOwner = !!user && user.uid === ownerUid;
+
     return (
-      <Shell publicView>
-        <PublicProfile profile={profile} />
+      <Shell
+        publicView
+        headerAction={
+          !user
+            ? { label: "Accedi", href: authRedirect }
+            : !isOwner
+              ? { label: "Area personale", href: "/me" }
+              : undefined
+        }
+      >
+        <PublicProfile profile={profile} isOwner={isOwner} />
       </Shell>
     );
   }

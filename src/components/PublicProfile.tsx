@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import type { UserProfile } from "@/lib/types";
 import { getAppBaseUrl } from "@/lib/firebase";
 import { InstagramIcon, TikTokIcon, SpottlyIcon } from "@/components/icons/SocialIcons";
@@ -40,7 +41,13 @@ function SocialRow({
   );
 }
 
-export function PublicProfile({ profile }: { profile: UserProfile }) {
+export function PublicProfile({
+  profile,
+  isOwner = false,
+}: {
+  profile: UserProfile;
+  isOwner?: boolean;
+}) {
   const initial = profile.fullName.charAt(0).toUpperCase();
   const baseUrl = getAppBaseUrl();
 
@@ -119,6 +126,14 @@ export function PublicProfile({ profile }: { profile: UserProfile }) {
         >
           Vedi i partner
         </a>
+        {isOwner ? (
+          <Link
+            href="/me"
+            className="flex h-12 w-full items-center justify-center rounded-full border border-white/25 px-6 text-sm font-semibold text-white transition active:bg-white/10"
+          >
+            Modifica il tuo profilo
+          </Link>
+        ) : null}
       </div>
     </div>
   );

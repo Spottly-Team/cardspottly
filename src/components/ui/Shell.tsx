@@ -10,24 +10,36 @@ export function Shell({
   subtitle,
   publicView = false,
   showShopLink = false,
+  headerAction,
 }: {
   children: ReactNode;
   title?: string;
   subtitle?: string;
-  /** Vista pubblica card: solo logo, niente link header */
+  /** Vista pubblica profilo card */
   publicView?: boolean;
   /** Home: mostra "Acquista la card" invece di Area personale */
   showShopLink?: boolean;
+  /** Es. Accedi o Area personale in vista pubblica */
+  headerAction?: { href: string; label: string };
 }) {
+  const showHeaderEnd = showShopLink || (!publicView && !showShopLink) || headerAction;
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col px-5 pb-10 pt-[max(2rem,env(safe-area-inset-top))]">
       <header
-        className={`mb-8 flex items-center gap-4 ${publicView ? "justify-center" : "justify-between"}`}
+        className={`mb-8 flex items-center gap-4 ${showHeaderEnd ? "justify-between" : "justify-center"}`}
       >
         <Link href="/" aria-label="Spottly home">
           <SpottlyLogo size="md" showWordmark />
         </Link>
-        {showShopLink ? (
+        {headerAction ? (
+          <Link
+            href={headerAction.href}
+            className="shrink-0 text-xs font-semibold uppercase tracking-widest text-neutral-400 transition hover:text-white"
+          >
+            {headerAction.label}
+          </Link>
+        ) : showShopLink ? (
           <a
             href={SHOP_URL}
             target="_blank"
