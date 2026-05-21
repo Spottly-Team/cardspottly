@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Shell } from "@/components/ui/Shell";
 import { Button } from "@/components/ui/Button";
+import { LegalFooterLinks } from "@/components/LegalFooterLinks";
 
 const SHOP_URL = "https://appspottly.com/shop";
 
@@ -65,6 +66,7 @@ export default function HomePage() {
           <p className="text-center text-xs text-neutral-400">
             Scansiona la tua tessera per aprire la pagina del profilo.
           </p>
+          <LegalFooterLinks className="mt-2 border-t border-white/10 pt-6" />
         </div>
       </div>
     </Shell>

@@ -5,28 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon, AppleIcon } from "@/components/icons/AuthBrandIcons";
-
-const PRIVACY_URL = "/privacypolicy";
-const TERMS_URL = "/termini-condizioni";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { LegalFooterLinks } from "@/components/LegalFooterLinks";
 
 function AuthFooter() {
   return (
-    <footer className="mt-auto border-t border-white/10 pt-6 pb-2 text-center">
-      <p className="text-xs leading-relaxed text-neutral-500">
-        <a
-          href={PRIVACY_URL}
-          className="underline decoration-white/30 underline-offset-2 transition hover:text-white"
-        >
-          Privacy Policy
-        </a>
-        <span className="mx-2 text-neutral-600">·</span>
-        <a
-          href={TERMS_URL}
-          className="underline decoration-white/30 underline-offset-2 transition hover:text-white"
-        >
-          Termini e condizioni
-        </a>
-      </p>
+    <footer className="mt-auto border-t border-white/10 pt-6 pb-2">
+      <LegalFooterLinks />
     </footer>
   );
 }
@@ -54,9 +39,7 @@ function AuthContent() {
     try {
       await fn();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Accesso non riuscito. Riprova.",
-      );
+      setError(getAuthErrorMessage(err));
     } finally {
       setBusy(null);
     }
