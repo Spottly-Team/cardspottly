@@ -8,15 +8,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  GoogleAuthProvider,
-  OAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-  type User,
-} from "firebase/auth";
+import { getRedirectResult, onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
+import { signInWithApple, signInWithGoogle } from "@/lib/auth-sign-in";
 
 type AuthContextValue = {
   user: User | null;
@@ -34,6 +28,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const auth = getFirebaseAuth();
+    getRedirectResult(auth).catch(() => {
+      /* errori redirect gestiti in /auth */
+    });
     return onAuthStateChanged(auth, (next) => {
       setUser(next);
       setLoading(false);
@@ -45,14 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       async signInGoogle() {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(getFirebaseAuth(), provider);
+        await signInWithGoogle(getFirebaseAuth());
       },
       async signInApple() {
-        const provider = new OAuthProvider("apple.com");
-        provider.addScope("email");
-        provider.addScope("name");
-        await signInWithPopup(getFirebaseAuth(), provider);
+        await signInWithApple(getFirebaseAuth());
       },
       async logout() {
         await signOut(getFirebaseAuth());

@@ -5,8 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon, AppleIcon } from "@/components/icons/AuthBrandIcons";
+import { getFirebaseAuth } from "@/lib/firebase";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { resolvePostAuthPath } from "@/lib/post-auth-redirect";
 import { LegalFooterLinks } from "@/components/LegalFooterLinks";
+import { getRedirectResult } from "firebase/auth";
 
 function AuthFooter() {
   return (
@@ -20,15 +23,32 @@ function AuthContent() {
   const { user, loading, signInGoogle, signInApple } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
-  const redirect = params.get("redirect") || "/me";
+  const redirectParam = params.get("redirect");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"google" | "apple" | null>(null);
 
   useEffect(() => {
-    if (!loading && user) {
-      router.replace(redirect);
-    }
-  }, [user, loading, router, redirect]);
+    getRedirectResult(getFirebaseAuth()).catch((err) => {
+      setError(getAuthErrorMessage(err));
+      setBusy(null);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    let cancelled = false;
+
+    resolvePostAuthPath(user.uid, redirectParam).then((path) => {
+      if (!cancelled) router.replace(path);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, loading, router, redirectParam]);
+
+  const completingSignIn = !loading && !!user;
 
   async function handleSignIn(
     provider: "google" | "apple",
@@ -45,9 +65,16 @@ function AuthContent() {
     }
   }
 
-  if (loading) {
+  if (loading || completingSignIn) {
     return (
-      <Shell title="Accedi" subtitle="Caricamento...">
+      <Shell
+        title="Accedi"
+        subtitle={
+          completingSignIn
+            ? "Accesso riuscito, reindirizzamento..."
+            : "Caricamento..."
+        }
+      >
         <div className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-pulse rounded-full bg-white/20" />
         </div>

@@ -26,7 +26,7 @@ export default function MePage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/auth?redirect=%2Fme");
+      router.replace("/auth?redirect=%2Fsetup");
     }
   }, [loading, user, router]);
 
