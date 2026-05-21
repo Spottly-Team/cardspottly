@@ -38,17 +38,18 @@ function SetupContent() {
 
   useEffect(() => {
     if (!user) return;
+    const uid = user.uid;
 
     async function load() {
       if (cardId && isValidCardId(cardId)) {
         const card = await getCard(cardId);
-        if (!card?.claimedBy || card.claimedBy !== user.uid) {
+        if (!card?.claimedBy || card.claimedBy !== uid) {
           router.replace(`/claim/${cardId}`);
           return;
         }
       }
 
-      const p = await getUserProfile(user.uid);
+      const p = await getUserProfile(uid);
       setInitial(profileToForm(p));
       setAvatarUrl(p?.avatarUrl);
       setProfileLoading(false);
