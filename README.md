@@ -26,6 +26,11 @@ Web app per configurare tessere NFC Spottly: ogni card ha un URL univoco (`/c/<c
    - **Firestore** → Regole → copia `firebase/firestore.rules` → Pubblica
    - **Storage** → Regole → copia `firebase/storage.rules` → Pubblica
 
+### Pagine legali
+
+- `/privacypolicy` e `/termini-condizioni` — testo ufficiale Spottly (da `public/legal/` e `src/content/`)
+- Link in footer pagina `/auth`
+
 ### Apple Sign-In (web)
 
 - Apple Developer → Identifiers → Service ID

@@ -6,8 +6,8 @@ import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon, AppleIcon } from "@/components/icons/AuthBrandIcons";
 
-const PRIVACY_URL = "https://appspottly.com/privacypolicy";
-const TERMS_URL = "https://appspottly.com/termini-condizioni";
+const PRIVACY_URL = "/privacypolicy";
+const TERMS_URL = "/termini-condizioni";
 
 function AuthFooter() {
   return (
@@ -15,8 +15,6 @@ function AuthFooter() {
       <p className="text-xs leading-relaxed text-neutral-500">
         <a
           href={PRIVACY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline decoration-white/30 underline-offset-2 transition hover:text-white"
         >
           Privacy Policy
@@ -24,8 +22,6 @@ function AuthFooter() {
         <span className="mx-2 text-neutral-600">·</span>
         <a
           href={TERMS_URL}
-          target="_blank"
-          rel="noopener noreferrer"
           className="underline decoration-white/30 underline-offset-2 transition hover:text-white"
         >
           Termini e condizioni
@@ -99,7 +95,7 @@ function AuthContent() {
             onClick={() => handleSignIn("apple", signInApple)}
             className="flex h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-white bg-black px-6 text-sm font-semibold text-white transition active:scale-[0.98] disabled:opacity-60"
           >
-            <AppleIcon className="h-5 w-5 shrink-0" />
+            <AppleIcon className="h-[22px] w-[22px] shrink-0" />
             <span>Continua con Apple</span>
           </button>
 

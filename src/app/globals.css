@@ -38,3 +38,67 @@ textarea,
 select {
   font-size: 16px;
 }
+
+/* Pagine legali (Privacy, Termini) */
+.legal-doc__body h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.legal-doc__body .last-updated {
+  font-size: 0.875rem;
+  color: #737373;
+  margin-bottom: 2rem;
+}
+
+.legal-doc__body section {
+  margin-bottom: 2rem;
+}
+
+.legal-doc__body h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+}
+
+.legal-doc__body h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.legal-doc__body p,
+.legal-doc__body li {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #a3a3a3;
+  margin-bottom: 0.75rem;
+}
+
+.legal-doc__body ul {
+  margin-left: 1.25rem;
+  margin-bottom: 1rem;
+  list-style: disc;
+}
+
+.legal-doc__body a {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-doc__body strong {
+  color: #e5e5e5;
+  font-weight: 600;
+}
+
+.legal-doc__body em {
+  color: #737373;
+  font-size: 0.875rem;
+}
