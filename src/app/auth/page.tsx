@@ -1,13 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon } from "@/components/icons/AuthBrandIcons";
 import { getAuthErrorCode, getAuthErrorMessage } from "@/lib/auth-errors";
-import { takeAuthRedirect } from "@/lib/auth-redirect-storage";
-import { resolvePostAuthPath } from "@/lib/post-auth-redirect";
+import { usePostAuthRedirect } from "@/lib/use-post-auth-redirect";
 import { LegalFooterLinks } from "@/components/LegalFooterLinks";
 
 function AuthFooter() {
@@ -21,52 +19,24 @@ function AuthFooter() {
 function AuthContent() {
   const { user, loading, redirectHandled, redirectError, signInGoogle } =
     useAuth();
-  const router = useRouter();
-  const params = useSearchParams();
-  const redirectParam = params.get("redirect");
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const postAuthStarted = useRef(false);
+
+  const onRedirectError = useCallback((message: string) => {
+    setError(message);
+    setBusy(false);
+  }, []);
+
+  usePostAuthRedirect(onRedirectError);
 
   useEffect(() => {
-    if (redirectError) {
-      setError(redirectError);
-      setBusy(false);
-    }
+    if (redirectError) setError(redirectError);
   }, [redirectError]);
 
-  useEffect(() => {
-    if (loading || !redirectHandled || !user || postAuthStarted.current) {
-      return;
-    }
-
-    postAuthStarted.current = true;
-    let cancelled = false;
-    const redirect = redirectParam ?? takeAuthRedirect();
-
-    resolvePostAuthPath(user.uid, redirect)
-      .then((path) => {
-        if (!cancelled) router.replace(path);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setErrorCode(getAuthErrorCode(err));
-          setError(
-            getAuthErrorMessage(err) ||
-              "Impossibile aprire il profilo. Riprova.",
-          );
-          postAuthStarted.current = false;
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, loading, redirectHandled, router, redirectParam]);
-
+  const displayError = error ?? redirectError;
   const completingSignIn =
-    !loading && redirectHandled && !!user && !error;
+    !loading && redirectHandled && !!user && !displayError;
 
   async function handleSignIn() {
     setError(null);
@@ -115,9 +85,11 @@ function AuthContent() {
             <span>Continua con Google</span>
           </button>
 
-          {error ? (
+          {displayError ? (
             <div className="rounded-xl border border-white/30 bg-white/5 px-4 py-3 text-sm text-white">
-              <p className="whitespace-pre-line leading-relaxed">{error}</p>
+              <p className="whitespace-pre-line leading-relaxed">
+                {displayError}
+              </p>
               {errorCode ? (
                 <p className="mt-2 font-mono text-xs text-neutral-500">
                   Codice Firebase: {errorCode}

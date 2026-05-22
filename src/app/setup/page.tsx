@@ -12,7 +12,7 @@ import {
   saveUserProfile,
 } from "@/lib/firestore";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
-import { hasCompleteProfile } from "@/lib/profile-complete";
+import { isRegisteredUser } from "@/lib/profile-complete";
 
 function SetupContent() {
   const { user, loading } = useAuth();
@@ -47,13 +47,11 @@ function SetupContent() {
         }
       }
 
-      const p = await getUserProfile(uid);
-      if (hasCompleteProfile(p)) {
-        router.replace(
-          cardId && isValidCardId(cardId) ? `/c/${cardId}` : "/me",
-        );
+      if (await isRegisteredUser(uid)) {
+        router.replace("/me");
         return;
       }
+      const p = await getUserProfile(uid);
       setInitial(profileToForm(p));
       setAvatarUrl(p?.avatarUrl);
       setProfileLoading(false);

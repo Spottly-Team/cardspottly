@@ -1,6 +1,6 @@
-import { getCard, getUserProfile } from "@/lib/firestore";
+import { getCard } from "@/lib/firestore";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
-import { hasCompleteProfile } from "@/lib/profile-complete";
+import { isRegisteredUser } from "@/lib/profile-complete";
 
 function parseCardIdFromRedirect(raw: string): string | null {
   const claimMatch = raw.match(/^\/claim\/([A-Za-z0-9]{12,16})/i);
@@ -31,19 +31,12 @@ export async function resolvePostAuthPath(
 ): Promise<string> {
   const raw = (redirectParam ?? "").trim();
   const cardId = parseCardIdFromRedirect(raw);
-  const profile = await getUserProfile(uid);
+  const registered = await isRegisteredUser(uid);
 
-  if (hasCompleteProfile(profile)) {
+  if (registered) {
     if (cardId) {
       const card = await getCard(cardId);
       if (card?.claimedBy === uid) return `/c/${cardId}`;
-    }
-    if (raw.startsWith("/c/")) {
-      const id = parseCardIdFromRedirect(raw);
-      if (id) {
-        const card = await getCard(id);
-        if (card?.claimedBy === uid) return `/c/${id}`;
-      }
     }
     return "/me";
   }

@@ -7,8 +7,8 @@ import { Shell } from "@/components/ui/Shell";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/AuthProvider";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
-import { claimCard, getCard, getUserProfile } from "@/lib/firestore";
-import { hasCompleteProfile } from "@/lib/profile-complete";
+import { claimCard, getCard } from "@/lib/firestore";
+import { isRegisteredUser } from "@/lib/profile-complete";
 
 export default function ClaimPage() {
   const params = useParams();
@@ -38,14 +38,12 @@ export default function ClaimPage() {
 
     async function check() {
       const card = await getCard(cardId);
-      const profile = await getUserProfile(uid);
-
       if (!card) {
         setError("Card non trovata.");
       } else if (card.claimedBy) {
         if (card.claimedBy === uid) {
           router.replace(
-            hasCompleteProfile(profile) ? `/c/${cardId}` : `/setup?cardId=${cardId}`,
+            (await isRegisteredUser(uid)) ? "/me" : `/setup?cardId=${cardId}`,
           );
           return;
         }
@@ -63,9 +61,8 @@ export default function ClaimPage() {
     setError(null);
     try {
       await claimCard(cardId, user.uid);
-      const profile = await getUserProfile(user.uid);
       router.push(
-        hasCompleteProfile(profile) ? `/c/${cardId}` : `/setup?cardId=${cardId}`,
+        (await isRegisteredUser(user.uid)) ? "/me" : `/setup?cardId=${cardId}`,
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Errore durante il claim.");
