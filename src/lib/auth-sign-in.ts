@@ -4,6 +4,7 @@ import {
   signInWithRedirect,
   type Auth,
 } from "firebase/auth";
+import { saveAuthRedirect } from "@/lib/auth-redirect-storage";
 
 function prefersRedirect(): boolean {
   if (typeof window === "undefined") return false;
@@ -17,7 +18,7 @@ export async function signInWithGoogle(auth: Auth): Promise<void> {
   const provider = new GoogleAuthProvider();
   const redirect = new URLSearchParams(window.location.search).get("redirect");
   if (redirect) {
-    sessionStorage.setItem("spottly_auth_redirect", redirect);
+    saveAuthRedirect(redirect);
   }
   if (prefersRedirect()) {
     await signInWithRedirect(auth, provider);

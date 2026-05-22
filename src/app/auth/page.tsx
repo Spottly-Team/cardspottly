@@ -1,15 +1,14 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon } from "@/components/icons/AuthBrandIcons";
-import { getFirebaseAuth } from "@/lib/firebase";
 import { getAuthErrorCode, getAuthErrorMessage } from "@/lib/auth-errors";
+import { takeAuthRedirect } from "@/lib/auth-redirect-storage";
 import { resolvePostAuthPath } from "@/lib/post-auth-redirect";
 import { LegalFooterLinks } from "@/components/LegalFooterLinks";
-import { getRedirectResult } from "firebase/auth";
 
 function AuthFooter() {
   return (
@@ -20,47 +19,54 @@ function AuthFooter() {
 }
 
 function AuthContent() {
-  const { user, loading, signInGoogle } = useAuth();
+  const { user, loading, redirectHandled, redirectError, signInGoogle } =
+    useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const redirectParam = params.get("redirect");
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const postAuthStarted = useRef(false);
 
   useEffect(() => {
-    getRedirectResult(getFirebaseAuth())
-      .then((result) => {
-        if (result) {
-          sessionStorage.removeItem("spottly_auth_redirect");
-        }
+    if (redirectError) {
+      setError(redirectError);
+      setBusy(false);
+    }
+  }, [redirectError]);
+
+  useEffect(() => {
+    if (loading || !redirectHandled || !user || postAuthStarted.current) {
+      return;
+    }
+
+    postAuthStarted.current = true;
+    let cancelled = false;
+    const redirect = redirectParam ?? takeAuthRedirect();
+
+    resolvePostAuthPath(user.uid, redirect)
+      .then((path) => {
+        if (!cancelled) router.replace(path);
       })
       .catch((err) => {
-        setErrorCode(getAuthErrorCode(err));
-        setError(getAuthErrorMessage(err));
-        setBusy(false);
+        if (!cancelled) {
+          setErrorCode(getAuthErrorCode(err));
+          setError(
+            getAuthErrorMessage(err) ||
+              "Impossibile aprire il profilo. Riprova.",
+          );
+          postAuthStarted.current = false;
+        }
       });
-  }, []);
-
-  useEffect(() => {
-    if (loading || !user) return;
-
-    let cancelled = false;
-    const redirect =
-      redirectParam ??
-      sessionStorage.getItem("spottly_auth_redirect");
-    sessionStorage.removeItem("spottly_auth_redirect");
-
-    resolvePostAuthPath(user.uid, redirect).then((path) => {
-      if (!cancelled) router.replace(path);
-    });
 
     return () => {
       cancelled = true;
     };
-  }, [user, loading, router, redirectParam]);
+  }, [user, loading, redirectHandled, router, redirectParam]);
 
-  const completingSignIn = !loading && !!user;
+  const completingSignIn =
+    !loading && redirectHandled && !!user && !error;
 
   async function handleSignIn() {
     setError(null);
@@ -68,7 +74,6 @@ function AuthContent() {
     setBusy(true);
     try {
       await signInGoogle();
-      // redirect: la pagina cambia; popup: resta busy finché user è valorizzato
     } catch (err) {
       setErrorCode(getAuthErrorCode(err));
       setError(getAuthErrorMessage(err));
@@ -76,7 +81,7 @@ function AuthContent() {
     }
   }
 
-  if (loading || completingSignIn) {
+  if (loading || !redirectHandled || completingSignIn) {
     return (
       <Shell
         title="Accedi"

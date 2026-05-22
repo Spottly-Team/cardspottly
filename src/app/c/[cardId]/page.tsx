@@ -113,7 +113,7 @@ export default function CardPage() {
   }
 
   if (claimed && profile) {
-    const authRedirect = `/auth?redirect=${encodeURIComponent(`/c/${cardId}`)}`;
+    const authRedirect = `/auth?redirect=${encodeURIComponent("/me")}`;
     const isOwner = !!user && user.uid === ownerUid;
 
     return (
