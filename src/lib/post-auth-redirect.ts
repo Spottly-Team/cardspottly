@@ -30,6 +30,11 @@ export async function resolvePostAuthPath(
   redirectParam: string | null,
 ): Promise<string> {
   const raw = (redirectParam ?? "").trim();
+
+  if (raw === "/me" || raw.startsWith("/me?")) {
+    return "/me";
+  }
+
   const cardId = parseCardIdFromRedirect(raw);
   const registered = await isRegisteredUser(uid);
 

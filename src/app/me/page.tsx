@@ -17,7 +17,7 @@ import { getAppBaseUrl } from "@/lib/firebase";
 import type { UserProfile } from "@/lib/types";
 
 export default function MePage() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, redirectHandled, logout } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [cards, setCards] = useState<string[]>([]);
@@ -25,10 +25,11 @@ export default function MePage() {
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!redirectHandled || loading) return;
+    if (!user) {
       router.replace(`/auth?redirect=${encodeURIComponent("/me")}`);
     }
-  }, [loading, user, router]);
+  }, [redirectHandled, loading, user, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -48,7 +49,7 @@ export default function MePage() {
     load();
   }, [user]);
 
-  if (loading || pageLoading) {
+  if (!redirectHandled || loading || pageLoading) {
     return (
       <Shell title="Area personale" subtitle="Caricamento...">
         <div className="flex flex-1 items-center justify-center">

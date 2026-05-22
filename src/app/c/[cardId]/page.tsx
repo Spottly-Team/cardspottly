@@ -15,7 +15,7 @@ import type { UserProfile } from "@/lib/types";
 export default function CardPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, redirectHandled } = useAuth();
   const rawId = typeof params.cardId === "string" ? params.cardId : "";
   const cardId = normalizeCardId(rawId);
 
@@ -25,20 +25,20 @@ export default function CardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
-    if (loading || authLoading || notFound || claimed) return;
+    if (!redirectHandled || loading || authLoading || notFound || claimed) return;
     if (!user && isValidCardId(cardId)) {
       router.replace(
         `/auth?redirect=${encodeURIComponent("/me")}`,
       );
     }
-  }, [loading, authLoading, notFound, claimed, user, cardId, router]);
+  }, [redirectHandled, loading, authLoading, notFound, claimed, user, cardId, router]);
 
   useEffect(() => {
-    if (authLoading || loading || !user) return;
+    if (!redirectHandled || authLoading || loading || !user) return;
     void isRegisteredUser(user.uid).then((registered) => {
       if (registered) router.replace("/me");
     });
-  }, [authLoading, loading, user, router]);
+  }, [redirectHandled, authLoading, loading, user, router]);
 
   useEffect(() => {
     if (!isValidCardId(cardId)) {
@@ -109,7 +109,7 @@ export default function CardPage() {
     );
   }
 
-  if (loading || authLoading) {
+  if (!redirectHandled || loading || authLoading) {
     return (
       <Shell title="Caricamento" subtitle="Un attimo...">
         <div className="flex flex-1 items-center justify-center">

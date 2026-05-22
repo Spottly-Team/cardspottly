@@ -3,26 +3,41 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
-import { takeAuthRedirect } from "@/lib/auth-redirect-storage";
+import { peekAuthRedirect, takeAuthRedirect } from "@/lib/auth-redirect-storage";
 import { resolvePostAuthPath } from "@/lib/post-auth-redirect";
 
+type Options = {
+  /** false = non navigare */
+  enabled?: boolean;
+  /** Se non c'è redirect in URL/storage (es. pagina /auth dopo OAuth) */
+  fallbackPath?: string;
+};
+
 /**
- * Esegue il redirect dopo login. Nessun ref "già partito": in React Strict Mode
- * il primo mount viene annullato e il secondo deve poter navigare.
+ * Redirect dopo login Google. Senza ref "già partito": in Strict Mode il primo
+ * mount viene annullato e il secondo deve poter navigare.
  */
-export function usePostAuthRedirect(onError: (message: string) => void) {
+export function usePostAuthRedirect(
+  onError: (message: string) => void,
+  options?: Options,
+) {
+  const enabled = options?.enabled ?? true;
   const { user, loading, redirectHandled } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const redirectParam = params.get("redirect");
 
   useEffect(() => {
-    if (loading || !redirectHandled || !user) return;
+    if (!enabled || loading || !redirectHandled || !user) return;
+
+    const stored = peekAuthRedirect();
+    const pathToUse =
+      redirectParam ?? (stored ? takeAuthRedirect() : null) ?? options?.fallbackPath;
+    if (!pathToUse) return;
 
     let cancelled = false;
-    const redirect = redirectParam ?? takeAuthRedirect();
 
-    resolvePostAuthPath(user.uid, redirect)
+    resolvePostAuthPath(user.uid, pathToUse)
       .then((path) => {
         if (!cancelled) router.replace(path);
       })
@@ -39,5 +54,14 @@ export function usePostAuthRedirect(onError: (message: string) => void) {
     return () => {
       cancelled = true;
     };
-  }, [user, loading, redirectHandled, router, redirectParam, onError]);
+  }, [
+    enabled,
+    user,
+    loading,
+    redirectHandled,
+    router,
+    redirectParam,
+    onError,
+    options?.fallbackPath,
+  ]);
 }

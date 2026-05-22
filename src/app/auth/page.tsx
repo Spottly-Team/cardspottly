@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Shell } from "@/components/ui/Shell";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleIcon } from "@/components/icons/AuthBrandIcons";
@@ -17,6 +18,7 @@ function AuthFooter() {
 }
 
 function AuthContent() {
+  const router = useRouter();
   const { user, loading, redirectHandled, redirectError, signInGoogle } =
     useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ function AuthContent() {
     setBusy(false);
   }, []);
 
-  usePostAuthRedirect(onRedirectError);
+  usePostAuthRedirect(onRedirectError, { fallbackPath: "/me" });
 
   useEffect(() => {
     if (redirectError) setError(redirectError);
@@ -37,6 +39,12 @@ function AuthContent() {
   const displayError = error ?? redirectError;
   const completingSignIn =
     !loading && redirectHandled && !!user && !displayError;
+
+  useEffect(() => {
+    if (!completingSignIn) return;
+    const t = setTimeout(() => router.replace("/me"), 8000);
+    return () => clearTimeout(t);
+  }, [completingSignIn, router]);
 
   async function handleSignIn() {
     setError(null);

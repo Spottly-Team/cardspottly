@@ -13,7 +13,7 @@ import { isRegisteredUser } from "@/lib/profile-complete";
 export default function ClaimPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, redirectHandled } = useAuth();
   const cardId = normalizeCardId(
     typeof params.cardId === "string" ? params.cardId : "",
   );
@@ -24,12 +24,13 @@ export default function ClaimPage() {
   const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!redirectHandled || authLoading) return;
+    if (!user) {
       router.replace(
         `/auth?redirect=${encodeURIComponent(`/c/${cardId}`)}`,
       );
     }
-  }, [authLoading, user, router, cardId]);
+  }, [redirectHandled, authLoading, user, router, cardId]);
 
   useEffect(() => {
     if (!isValidCardId(cardId)) return;
@@ -81,7 +82,7 @@ export default function ClaimPage() {
     );
   }
 
-  if (authLoading || loading) {
+  if (!redirectHandled || authLoading || loading) {
     return (
       <Shell title="Associa card" subtitle="Caricamento...">
         <div className="flex flex-1 items-center justify-center">

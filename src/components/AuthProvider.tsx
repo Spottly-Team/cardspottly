@@ -8,20 +8,19 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  getRedirectResult,
-  onAuthStateChanged,
-  signOut,
-  type User,
-} from "firebase/auth";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
+import {
+  completeGoogleRedirect,
+  ensureAuthPersistence,
+} from "@/lib/auth-bootstrap";
 import { signInWithGoogle } from "@/lib/auth-sign-in";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
-  /** true dopo getRedirectResult (necessario su mobile con signInWithRedirect) */
+  /** true dopo getRedirectResult (OAuth redirect da mobile) */
   redirectHandled: boolean;
   redirectError: string | null;
   signInGoogle: () => Promise<void>;
@@ -38,23 +37,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const auth = getFirebaseAuth();
-    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
 
-    void (async () => {
-      try {
-        await getRedirectResult(auth);
-      } catch (err) {
-        setRedirectError(getAuthErrorMessage(err));
-      } finally {
-        unsubscribe = onAuthStateChanged(auth, (next) => {
-          setUser(next);
-          setLoading(false);
-          setRedirectHandled(true);
-        });
-      }
-    })();
+    void ensureAuthPersistence(auth);
 
-    return () => unsubscribe?.();
+    const unsubscribe = onAuthStateChanged(auth, (next) => {
+      if (cancelled) return;
+      setUser(next);
+      setLoading(false);
+    });
+
+    void completeGoogleRedirect(auth)
+      .catch((err) => {
+        if (!cancelled) setRedirectError(getAuthErrorMessage(err));
+      })
+      .finally(() => {
+        if (!cancelled) setRedirectHandled(true);
+      });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   const value = useMemo<AuthContextValue>(

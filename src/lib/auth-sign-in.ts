@@ -11,6 +11,7 @@ function prefersRedirect(): boolean {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
   if (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua)) return true;
+  if (/FBAN|FBAV|Instagram|Line\//i.test(ua)) return true;
   return false;
 }
 

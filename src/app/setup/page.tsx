@@ -15,7 +15,7 @@ import { isValidCardId, normalizeCardId } from "@/lib/card-id";
 import { isRegisteredUser } from "@/lib/profile-complete";
 
 function SetupContent() {
-  const { user, loading } = useAuth();
+  const { user, loading, redirectHandled } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const cardId = params.get("cardId")
@@ -27,12 +27,13 @@ function SetupContent() {
   const [cardCheckLoading, setCardCheckLoading] = useState(!!cardId);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!redirectHandled || loading) return;
+    if (!user) {
       const redirect =
         cardId && isValidCardId(cardId) ? `/c/${cardId}` : "/me";
       router.replace(`/auth?redirect=${encodeURIComponent(redirect)}`);
     }
-  }, [loading, user, router, cardId]);
+  }, [redirectHandled, loading, user, router, cardId]);
 
   useEffect(() => {
     if (!user) return;
@@ -61,7 +62,7 @@ function SetupContent() {
     load();
   }, [user, cardId, router]);
 
-  if (loading || !user || profileLoading || cardCheckLoading) {
+  if (!redirectHandled || loading || !user || profileLoading || cardCheckLoading) {
     return (
       <Shell title="Setup profilo" subtitle="Caricamento...">
         <div className="flex flex-1 items-center justify-center">
