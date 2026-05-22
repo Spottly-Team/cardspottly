@@ -57,9 +57,13 @@ Apri [http://localhost:3000](http://localhost:3000)
    - `NEXT_PUBLIC_FIREBASE_APP_ID`
    - `NEXT_PUBLIC_APP_URL` = `https://card.appspottly.com`
 6. **Firebase Auth** → Authorized domains → aggiungi `card.appspottly.com` (e `cardspottly.netlify.app` finché usi Netlify)
-7. **Google Cloud** → OAuth → Authorized JavaScript origins → `https://card.appspottly.com`
-8. **Netlify** → Domain management → aggiungi `card.appspottly.com` (DNS CNAME verso Netlify)
-8. Rideploy dopo aver salvato le variabili
+7. **Google Cloud** (progetto Firebase) → Credentials → OAuth client → **Authorized redirect URIs**:
+   - `https://card.appspottly.com/__/auth/handler`
+   - `https://card-spottly.firebaseapp.com/__/auth/handler` (backup)
+8. **Google Cloud** → Authorized JavaScript origins → `https://card.appspottly.com`
+9. **Netlify env** → `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` = `card.appspottly.com` (stesso dominio dell'app, obbligatorio su iPhone/Safari)
+10. **Netlify** → Domain management → aggiungi `card.appspottly.com` (DNS CNAME verso Netlify)
+11. Rideploy dopo aver salvato le variabili
 
 > Se vedi “Page not found” di Netlify: quasi sempre **Publish directory** sbagliata (`public` invece del plugin Next.js).
 

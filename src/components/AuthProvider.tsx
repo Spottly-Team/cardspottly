@@ -20,10 +20,9 @@ import { getAuthErrorMessage } from "@/lib/auth-errors";
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
-  /** true dopo getRedirectResult (OAuth redirect da mobile) */
   redirectHandled: boolean;
   redirectError: string | null;
-  signInGoogle: () => Promise<void>;
+  signInGoogle: () => Promise<import("firebase/auth").UserCredential | null>;
   logout: () => Promise<void>;
 };
 
@@ -39,8 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const auth = getFirebaseAuth();
     let cancelled = false;
 
-    void ensureAuthPersistence(auth);
-
     const unsubscribe = onAuthStateChanged(auth, (next) => {
       if (cancelled) return;
       setUser(next);
@@ -52,7 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setRedirectError(getAuthErrorMessage(err));
       })
       .finally(() => {
-        if (!cancelled) setRedirectHandled(true);
+        if (cancelled) return;
+        void ensureAuthPersistence(auth).finally(() => {
+          if (!cancelled) setRedirectHandled(true);
+        });
       });
 
     return () => {
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       redirectError,
       async signInGoogle() {
         setRedirectError(null);
-        await signInWithGoogle(getFirebaseAuth());
+        return signInWithGoogle(getFirebaseAuth());
       },
       async logout() {
         await signOut(getFirebaseAuth());

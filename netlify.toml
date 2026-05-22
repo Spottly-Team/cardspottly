@@ -11,3 +11,16 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Proxy helper OAuth Firebase sullo stesso dominio (Safari/Chrome M115+)
+[[redirects]]
+  from = "/__/auth/*"
+  to = "https://card-spottly.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/__/firebase/*"
+  to = "https://card-spottly.firebaseapp.com/__/firebase/:splat"
+  status = 200
+  force = true

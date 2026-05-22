@@ -4,13 +4,35 @@ import { getFirestore, type Firestore } from "firebase/firestore";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 import { firebaseClientDefaults } from "./firebase.client.config";
 
+/** Dominio app (es. card.appspottly.com) — richiesto per OAuth su Safari/Chrome. */
+export function resolveAuthDomain(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.trim();
+  if (fromEnv) return fromEnv;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (appUrl) {
+    try {
+      return new URL(appUrl).hostname;
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return host;
+    }
+  }
+
+  return firebaseClientDefaults.authDomain;
+}
+
 const firebaseConfig = {
   apiKey:
     process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
     firebaseClientDefaults.apiKey,
-  authDomain:
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
-    firebaseClientDefaults.authDomain,
+  authDomain: resolveAuthDomain(),
   projectId:
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
     firebaseClientDefaults.projectId,

@@ -6,8 +6,11 @@ import {
   type UserCredential,
 } from "firebase/auth";
 
-/** Una sola getRedirectResult per caricamento pagina (React Strict Mode la chiama due volte). */
 let redirectResultPromise: Promise<UserCredential | null> | null = null;
+
+export function resetGoogleRedirectState(): void {
+  redirectResultPromise = null;
+}
 
 export async function ensureAuthPersistence(auth: Auth): Promise<void> {
   try {
@@ -17,7 +20,10 @@ export async function ensureAuthPersistence(auth: Auth): Promise<void> {
   }
 }
 
-export function completeGoogleRedirect(auth: Auth): Promise<UserCredential | null> {
+/** Completa OAuth redirect — va chiamato prima di setPersistence. */
+export function completeGoogleRedirect(
+  auth: Auth,
+): Promise<UserCredential | null> {
   if (!redirectResultPromise) {
     redirectResultPromise = getRedirectResult(auth);
   }
