@@ -1,5 +1,28 @@
-import { getUserProfile } from "@/lib/firestore";
+import { getCard, getUserProfile } from "@/lib/firestore";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
+import { hasCompleteProfile } from "@/lib/profile-complete";
+
+function parseCardIdFromRedirect(raw: string): string | null {
+  const claimMatch = raw.match(/^\/claim\/([A-Za-z0-9]{12,16})/i);
+  if (claimMatch) {
+    const id = normalizeCardId(claimMatch[1]);
+    if (isValidCardId(id)) return id;
+  }
+
+  const cardMatch = raw.match(/^\/c\/([A-Za-z0-9]{12,16})/i);
+  if (cardMatch) {
+    const id = normalizeCardId(cardMatch[1]);
+    if (isValidCardId(id)) return id;
+  }
+
+  const fromQuery = raw.match(/[?&]cardId=([A-Za-z0-9]{12,16})/i)?.[1];
+  if (fromQuery) {
+    const id = normalizeCardId(fromQuery);
+    if (isValidCardId(id)) return id;
+  }
+
+  return null;
+}
 
 /** Dove mandare l'utente dopo l'accesso Google, in base a profilo e flusso card. */
 export async function resolvePostAuthPath(
@@ -7,36 +30,37 @@ export async function resolvePostAuthPath(
   redirectParam: string | null,
 ): Promise<string> {
   const raw = (redirectParam ?? "").trim();
-
-  const claimMatch = raw.match(/^\/claim\/([A-Za-z0-9]{12,16})/i);
-  if (claimMatch) {
-    const cardId = normalizeCardId(claimMatch[1]);
-    if (isValidCardId(cardId)) return `/claim/${cardId}`;
-  }
-
-  const cardIdFromQuery = raw.match(/[?&]cardId=([A-Za-z0-9]{12,16})/i)?.[1];
-  const cardId = cardIdFromQuery ? normalizeCardId(cardIdFromQuery) : null;
-
+  const cardId = parseCardIdFromRedirect(raw);
   const profile = await getUserProfile(uid);
 
-  if (!profile) {
-    if (cardId && isValidCardId(cardId)) {
-      return `/setup?cardId=${cardId}`;
+  if (hasCompleteProfile(profile)) {
+    if (cardId) {
+      const card = await getCard(cardId);
+      if (card?.claimedBy === uid) return `/c/${cardId}`;
     }
-    return "/setup";
+    if (raw.startsWith("/c/")) {
+      const id = parseCardIdFromRedirect(raw);
+      if (id) {
+        const card = await getCard(id);
+        if (card?.claimedBy === uid) return `/c/${id}`;
+      }
+    }
+    return "/me";
   }
 
-  if (!raw || raw === "/me" || raw.startsWith("/me")) {
-    return "/me";
+  if (cardId) {
+    const card = await getCard(cardId);
+    if (card?.claimedBy === uid) {
+      return `/setup?cardId=${cardId}`;
+    }
+    if (!card?.claimedBy) {
+      return `/claim/${cardId}`;
+    }
   }
 
   if (raw === "/setup" || raw.startsWith("/setup?")) {
-    return "/me";
+    return cardId ? `/setup?cardId=${cardId}` : "/setup";
   }
 
-  if (raw.startsWith("/c/")) {
-    return raw.split("?")[0]!;
-  }
-
-  return raw;
+  return cardId ? `/setup?cardId=${cardId}` : "/setup";
 }

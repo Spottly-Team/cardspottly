@@ -11,8 +11,8 @@ import {
   profileToForm,
   saveUserProfile,
 } from "@/lib/firestore";
-import { isValidCardId } from "@/lib/card-id";
-import { normalizeCardId } from "@/lib/card-id";
+import { isValidCardId, normalizeCardId } from "@/lib/card-id";
+import { hasCompleteProfile } from "@/lib/profile-complete";
 
 function SetupContent() {
   const { user, loading } = useAuth();
@@ -29,9 +29,7 @@ function SetupContent() {
   useEffect(() => {
     if (!loading && !user) {
       const redirect =
-        cardId && isValidCardId(cardId)
-          ? `/claim/${cardId}`
-          : "/setup";
+        cardId && isValidCardId(cardId) ? `/c/${cardId}` : "/me";
       router.replace(`/auth?redirect=${encodeURIComponent(redirect)}`);
     }
   }, [loading, user, router, cardId]);
@@ -50,6 +48,12 @@ function SetupContent() {
       }
 
       const p = await getUserProfile(uid);
+      if (hasCompleteProfile(p)) {
+        router.replace(
+          cardId && isValidCardId(cardId) ? `/c/${cardId}` : "/me",
+        );
+        return;
+      }
       setInitial(profileToForm(p));
       setAvatarUrl(p?.avatarUrl);
       setProfileLoading(false);

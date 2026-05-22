@@ -9,6 +9,7 @@ import { PublicProfile } from "@/components/PublicProfile";
 import { useAuth } from "@/components/AuthProvider";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
 import { getCard, getUserProfile } from "@/lib/firestore";
+import { hasCompleteProfile } from "@/lib/profile-complete";
 import type { UserProfile } from "@/lib/types";
 
 export default function CardPage() {
@@ -23,15 +24,23 @@ export default function CardPage() {
   const [ownerUid, setOwnerUid] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [registeredProfile, setRegisteredProfile] = useState(false);
 
   useEffect(() => {
     if (loading || authLoading || notFound || claimed) return;
     if (!user && isValidCardId(cardId)) {
       router.replace(
-        `/auth?redirect=${encodeURIComponent(`/claim/${cardId}`)}`,
+        `/auth?redirect=${encodeURIComponent(`/c/${cardId}`)}`,
       );
     }
   }, [loading, authLoading, notFound, claimed, user, cardId, router]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+    getUserProfile(user.uid).then((p) => {
+      setRegisteredProfile(hasCompleteProfile(p));
+    });
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (!isValidCardId(cardId)) {
@@ -152,6 +161,28 @@ export default function CardPage() {
       <Shell title="Accedi" subtitle="Reindirizzamento all'accesso...">
         <div className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-pulse rounded-full bg-white/20" />
+        </div>
+      </Shell>
+    );
+  }
+
+  if (registeredProfile) {
+    return (
+      <Shell
+        title="Sei già registrato"
+        subtitle="Il tuo profilo Spottly è attivo. Puoi gestirlo dall'area personale."
+      >
+        <div className="mt-auto flex flex-col gap-3">
+          <Button fullWidth onClick={() => router.push("/me")}>
+            Vai al mio profilo
+          </Button>
+          <Button
+            fullWidth
+            variant="outline"
+            onClick={() => router.push(`/claim/${cardId}`)}
+          >
+            Associa questa card
+          </Button>
         </div>
       </Shell>
     );

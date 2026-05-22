@@ -7,7 +7,8 @@ import { Shell } from "@/components/ui/Shell";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/components/AuthProvider";
 import { isValidCardId, normalizeCardId } from "@/lib/card-id";
-import { claimCard, getCard } from "@/lib/firestore";
+import { claimCard, getCard, getUserProfile } from "@/lib/firestore";
+import { hasCompleteProfile } from "@/lib/profile-complete";
 
 export default function ClaimPage() {
   const params = useParams();
@@ -25,29 +26,35 @@ export default function ClaimPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace(
-        `/auth?redirect=${encodeURIComponent(`/claim/${cardId}`)}`,
+        `/auth?redirect=${encodeURIComponent(`/c/${cardId}`)}`,
       );
     }
   }, [authLoading, user, router, cardId]);
 
   useEffect(() => {
     if (!isValidCardId(cardId)) return;
+    if (!user) return;
+    const uid = user.uid;
 
     async function check() {
       const card = await getCard(cardId);
+      const profile = await getUserProfile(uid);
+
       if (!card) {
         setError("Card non trovata.");
       } else if (card.claimedBy) {
-        if (user && card.claimedBy === user.uid) {
-          router.replace(`/setup?cardId=${cardId}`);
-        } else {
-          setAlreadyClaimed(true);
+        if (card.claimedBy === uid) {
+          router.replace(
+            hasCompleteProfile(profile) ? `/c/${cardId}` : `/setup?cardId=${cardId}`,
+          );
+          return;
         }
+        setAlreadyClaimed(true);
       }
       setLoading(false);
     }
 
-    if (user) check();
+    check();
   }, [cardId, user, router]);
 
   async function handleClaim() {
@@ -56,7 +63,10 @@ export default function ClaimPage() {
     setError(null);
     try {
       await claimCard(cardId, user.uid);
-      router.push(`/setup?cardId=${cardId}`);
+      const profile = await getUserProfile(user.uid);
+      router.push(
+        hasCompleteProfile(profile) ? `/c/${cardId}` : `/setup?cardId=${cardId}`,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Errore durante il claim.");
     } finally {
