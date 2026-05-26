@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { UserProfile } from "@/lib/types";
-import { getAppBaseUrl } from "@/lib/firebase";
 import { InstagramIcon, TikTokIcon, SpottlyIcon } from "@/components/icons/SocialIcons";
+
+const SPOTTLY_INVITE_BASE = "https://invite.appspottly.com";
 
 function SocialRow({
   label,
@@ -49,7 +50,6 @@ export function PublicProfile({
   isOwner?: boolean;
 }) {
   const initial = profile.fullName.charAt(0).toUpperCase();
-  const baseUrl = getAppBaseUrl();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -91,7 +91,7 @@ export function PublicProfile({
         <SocialRow
           label="Spottly"
           username={profile.spottlyUsername}
-          href={`${baseUrl}/u/${profile.spottlyUsername}`}
+          href={`${SPOTTLY_INVITE_BASE}/${profile.spottlyUsername}`}
           icon={<SpottlyIcon className="h-9 w-9" />}
         />
         {profile.instagramUsername ? (
